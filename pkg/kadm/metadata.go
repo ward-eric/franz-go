@@ -200,7 +200,7 @@ func int32s(is []int32) []int32 {
 // ListBrokers issues a metadata request and returns BrokerDetails. This
 // returns an error if the request fails to be issued, or an *AuthError.
 func (cl *Client) ListBrokers(ctx context.Context) (BrokerDetails, error) {
-	m, err := cl.Metadata(ctx)
+	m, err := cl.Metadata(ctx, true)
 	if err != nil {
 		return nil, err
 	}
@@ -212,7 +212,7 @@ func (cl *Client) ListBrokers(ctx context.Context) (BrokerDetails, error) {
 //
 // This returns an error if the request fails to be issued, or an *AuthErr.
 func (cl *Client) BrokerMetadata(ctx context.Context) (Metadata, error) {
-	return cl.metadata(ctx, true, nil)
+	return cl.metadata(ctx, true, nil, true)
 }
 
 // Metadata issues a metadata request and returns it. Specific topics to
@@ -222,15 +222,16 @@ func (cl *Client) BrokerMetadata(ctx context.Context) (Metadata, error) {
 // This returns an error if the request fails to be issued, or an *AuthErr.
 func (cl *Client) Metadata(
 	ctx context.Context,
+	includeTopicAuthorizedOperations bool,
 	topics ...string,
 ) (Metadata, error) {
-	return cl.metadata(ctx, false, topics)
+	return cl.metadata(ctx, false, topics, includeTopicAuthorizedOperations)
 }
 
-func (cl *Client) metadata(ctx context.Context, noTopics bool, topics []string) (Metadata, error) {
+func (cl *Client) metadata(ctx context.Context, noTopics bool, topics []string, includeTopicAuthorizedOperations bool) (Metadata, error) {
 	req := kmsg.NewPtrMetadataRequest()
 	req.IncludeClusterAuthorizedOperations = true
-	req.IncludeTopicAuthorizedOperations = true
+	req.IncludeTopicAuthorizedOperations = includeTopicAuthorizedOperations
 	for _, t := range topics {
 		rt := kmsg.NewMetadataRequestTopic()
 		rt.Topic = kmsg.StringPtr(t)

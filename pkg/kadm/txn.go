@@ -228,13 +228,13 @@ func (ds DescribedProducersTopics) EachProducer(fn func(DescribedProducer)) {
 // This may return *ShardErrors or *AuthError.
 func (cl *Client) DescribeProducers(ctx context.Context, s TopicsSet) (DescribedProducersTopics, error) {
 	if len(s) == 0 {
-		m, err := cl.Metadata(ctx)
+		m, err := cl.Metadata(ctx, true)
 		if err != nil {
 			return nil, err
 		}
 		s = m.Topics.TopicsSet()
 	} else if e := s.EmptyTopics(); len(e) > 0 {
-		m, err := cl.Metadata(ctx, e...)
+		m, err := cl.Metadata(ctx, true, e...)
 		if err != nil {
 			return nil, err
 		}
